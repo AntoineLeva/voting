@@ -10,7 +10,7 @@ task("accounts", "Prints the list of accounts", async (args, hre) => {
 
 // Go to https://infura.io, sign up, create a new API key
 // in its dashboard, and replace "KEY" with it
-const INFURA_API_KEY = "04e4a2e349c6452c95c6e10d79358173";
+const INFURA_API_KEY = "ccc8cf8f3d6d4e3a9c3ef7cf725f6ca3";
 
 // Replace this private key with your Sepolia account private key
 // To export your private key from Coinbase Wallet, go to
@@ -18,7 +18,7 @@ const INFURA_API_KEY = "04e4a2e349c6452c95c6e10d79358173";
 // To export your private key from Metamask, open Metamask and
 // go to Account Details > Export Private Key
 // Beware: NEVER put real Ether into testing accounts
-const SEPOLIA_PRIVATE_KEY = "b64a21be476d4b67b778892db07c960864d007f4f569ef6252fcecd26ef15dad";
+const SEPOLIA_PRIVATE_KEY = "df57089febbacf7ba0bc227dafbffa9fc08a93fdc68e1e42411a14efcf23656e";
 
 // Go to https://hardhat.org/config/ to learn more
 
