@@ -1,20 +1,39 @@
 'use client'
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { abi, contractAddress } from '@/constants';
-
-import { useAccount } from 'wagmi'
-import { readContract, prepareWriteContract, writeContract } from '@wagmi/core'
-
+import { useAccount } from 'wagmi';
+import { readContract, prepareWriteContract, writeContract } from '@wagmi/core';
 import { useState } from 'react';
 
 export default function VotingDApp() {
-
-  const { address, isConnected } = useAccount()
+  const { address, isConnected } = useAccount();
 
   const [workflowStatus, setWorkflowStatus] = useState(null);
   const [proposals, setProposals] = useState([]);
   const [selectedProposal, setSelectedProposal] = useState("");
   const [voteCount, setVoteCount] = useState([]);
+
+  // Fonction pour s'inscrire en tant qu'électeur
+  const loginVoter = async (age) => {
+    const { request } = await prepareWriteContract({
+      address: contractAddress,
+      abi: abi,
+      functionName: 'loginVoter',
+      args: [age],
+    });
+    await writeContract(request);
+  }
+
+  // Fonction pour ajouter un électeur à la liste blanche
+  const whitelistVoter = async (voterAddress) => {
+    const { request } = await prepareWriteContract({
+      address: contractAddress,
+      abi: abi,
+      functionName: 'whitelist',
+      args: [voterAddress],
+    });
+    await writeContract(request);
+  }
 
   // Fonction pour récupérer le statut du workflow
   const getWorkflowStatus = async () => {
@@ -142,6 +161,8 @@ export default function VotingDApp() {
         <div>
           <p>Workflow Status: {workflowStatus}</p>
           <button onClick={getWorkflowStatus}>Get Workflow Status</button>
+          <button onClick={() => loginVoter(18)}>Login Voter</button>
+          <button onClick={() => whitelistVoter("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266")}>Whitelist Voter</button>
           <hr />
           <h2>Proposals</h2>
           <ul>
@@ -165,6 +186,7 @@ export default function VotingDApp() {
           <button onClick={endVotingSession}>End Voting Session</button>
           <button onClick={tallyVotes}>Tally Votes</button>
           <button onClick={viewResult}>View Result</button>
+          <hr />
         </div>
       ) : (
         <p>Please connect your Wallet to our DApp.</p>
