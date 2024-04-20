@@ -37,6 +37,7 @@ contract Voting is Ownable {
     event WorkflowStatusChange(WorkflowStatus previousStatus, WorkflowStatus newStatus);
     event ProposalRegistered(uint proposalId);
     event Voted (address voter, uint proposalId);
+    event UnVoted (address voter, uint proposalId);
 
     Proposal[] private _proposalsList;
     mapping(address=>Voter) public  _votersList;
@@ -99,6 +100,11 @@ contract Voting is Ownable {
         _;
     }
 
+    modifier hasNotVoted() {
+        require(_votersList[msg.sender].hasVoted == true,"You haven't voted for a proposal yet");
+        _;
+    }
+
     /// Débute la session d'enregistrement des électeurs
     function startProposalsRegistration() public onlyOwner isInRegistrationTime {
         _sessionState = WorkflowStatus.ProposalsRegistrationStarted;
@@ -137,24 +143,24 @@ contract Voting is Ownable {
     /// Ajoute une nouvelle proposition
     function addProposal(string memory _description) public isRegistered isInProposalsRegistration  {
         _proposalsList.push(Proposal(_description,0,msg.sender));
-        uint proposalId = _proposalsList.length-1;
+        uint proposalId = _proposalsList.length - 1;
         emit ProposalRegistered(proposalId);
     }
 
     /// Permet de voter pour une proposition
     function voteProposal(uint _proposalId) public isRegistered isInProposalVoting hasVoted {
-        Voter memory voter = _votersList[msg.sender];
-        voter.hasVoted = true;
-        voter.votedProposalId = _proposalId;
-        _proposalsList[_proposalId].voteCount ++;
+        _votersList[msg.sender].hasVoted = true;
+        _votersList[msg.sender].votedProposalId = _proposalId;
+        _proposalsList[_proposalId].voteCount += 1;
+        emit Voted(msg.sender, _proposalId);
     }
 
     /// Permet de retirer le vote de la proposition
-    function voteWithdraw() public isRegistered isInProposalVoting {
-        Voter memory voter = _votersList[msg.sender];
-        voter.hasVoted=false;
-        (_proposalsList[voter.votedProposalId]).voteCount -= 1;
-        voter.votedProposalId=0;
+    function voteWithdraw() public isRegistered isInProposalVoting hasNotVoted {
+        _votersList[msg.sender].hasVoted = false;
+        uint id = _votersList[msg.sender].votedProposalId;
+        _proposalsList[id].voteCount -= 1;
+        emit UnVoted(msg.sender, id);
     } 
 
     /// Permet d'obtenir la proposition vainceur
